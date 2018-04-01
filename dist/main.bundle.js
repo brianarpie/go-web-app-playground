@@ -127,6 +127,17 @@ var App = function (_Component) {
 				_react2.default.createElement(
 					'form',
 					{ action: 'login', method: 'post' },
+					_react2.default.createElement(
+						'label',
+						null,
+						'Email'
+					),
+					_react2.default.createElement('input', { type: 'input', name: 'email' }),
+					_react2.default.createElement(
+						'label',
+						null,
+						'Password'
+					),
 					_react2.default.createElement('input', { type: 'password', name: 'password' }),
 					_react2.default.createElement('input', { type: 'submit', value: 'login' })
 				)

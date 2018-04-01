@@ -3,7 +3,7 @@ package main
 import (
   "os"
   "fmt"
-  // "time"
+  "flag"
   "sync"
   "github.com/steakknife/rsapss/subtle"
   "net/http"
@@ -66,9 +66,11 @@ func main() {
   db = config.OpenDatabase()
   r := mux.NewRouter()
   sessionStore = make(map[string]Client)
+  portPtr := flag.String("port", "3000", "The Go Server's HTTP Port")
+  flag.Parse() // execute command line parsing.
+  port := fmt.Sprintf(":%s", *portPtr)
 
   r.Handle("/", http.FileServer(http.Dir("./views/")))
-  // TODO: mess around with status files
   r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))))
   r.PathPrefix("/dist/").Handler(http.StripPrefix("/dist/", http.FileServer(http.Dir("./dist/"))))
 
@@ -77,7 +79,7 @@ func main() {
   r.Handle("/products", authentication(ProductsHandler)).Methods("GET")
   r.Handle("/products/{slug}/feedback", authentication(AddFeedbackHandler)).Methods("GET")
 
-  http.ListenAndServe(":3000", handlers.LoggingHandler(os.Stdout, r))
+  http.ListenAndServe(port, handlers.LoggingHandler(os.Stdout, r))
 
   defer db.Close()
 }
@@ -127,8 +129,7 @@ var LoginHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request)
     return
   }
 
-  if subtle.ConstantTimeCompare([]byte(r.FormValue("password")),
-  []byte("abc123")) == 1 {
+  if subtle.ConstantTimeCompare([]byte(r.FormValue("password")), []byte("abc123")) == 1 {
     client.loggedIn = true
     fmt.Fprintln(w, "Thank you for logging in.")
     storageMutex.Lock()

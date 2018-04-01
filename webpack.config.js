@@ -23,11 +23,12 @@ const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 const isDevMode = process.env.NODE_ENV !== 'production';
-const webpackMode = isDevMode ? 'development' : 'production';
 
 module.exports = {
 
-	mode: webpackMode,
+	mode: isDevMode ? 'development' : 'production',
+
+	devtool: isDevMode ? "source-map" : null,
 
 	entry: "./client/index.jsx",
 
@@ -73,10 +74,3 @@ module.exports = {
 	plugins: [new ExtractTextPlugin('style.css')]
 };
 
-if (isDevMode) {
-	module.exports.devtool = "source-map";
-} else {
-	config.plugins.push(
-		new UglifyJSPlugin()
-	);
-}
