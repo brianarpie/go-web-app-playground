@@ -3,7 +3,9 @@ package main
 import (
   "os"
   "fmt"
-  "time"
+  // "time"
+  "sync"
+  "github.com/steakknife/rsapss/subtle"
   "net/http"
   "database/sql"
   "encoding/json"
@@ -45,6 +47,15 @@ type authMiddleware struct {
 }
 
 func (h authMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+  _, client := ensureSessionCookie(w, r)
+  if client.loggedIn == false {
+    http.Redirect(w, r, "/", 401)
+    return
+  }
+  if client.loggedIn == true {
+    h.wrappedHandler.ServeHTTP(w, r)
+    return
+  }
 }
 
 func authentication(h http.Handler) authMiddleware {
@@ -62,24 +73,73 @@ func main() {
 
   r.Handle("/login", LoginHandler).Methods("POST")
   r.Handle("/status", StatusHandler).Methods("GET")
-  r.Handle("/products", authMiddleware(ProductsHandler)).Methods("GET")
-  r.Handle("/products/{slug}/feedback", authMiddleware(AddFeedbackHandler)).Methods("GET")
-  r.Handle("/get-token", GetTokenHandler).Methods("GET")
+  r.Handle("/products", authentication(ProductsHandler)).Methods("GET")
+  r.Handle("/products/{slug}/feedback", authentication(AddFeedbackHandler)).Methods("GET")
 
   http.ListenAndServe(":3000", handlers.LoggingHandler(os.Stdout, r))
 
   defer db.Close()
 }
 
+func ensureSessionCookie(w http.ResponseWriter, r *http.Request) (*http.Cookie, Client) {
+  var present bool
+  var client Client
+  cookie, err := r.Cookie("session")
+  if err != nil {
+    if err != http.ErrNoCookie {
+      fmt.Fprint(w, err)
+      return nil, client
+    } else {
+      err = nil
+    }
+  }
+  if cookie != nil {
+    storageMutex.RLock()
+    client, present = sessionStore[cookie.Value]
+    storageMutex.RUnlock()
+  } else {
+    present = false
+  }
 
-var NotImplemented = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-  w.Write([]byte("Not Implemented"))
-})
+  if present == false {
+    cookie = &http.Cookie{
+      Name: "session",
+      Value: uuid.NewV4().String(),
+    }
+    client = Client{false}
+    storageMutex.Lock()
+    sessionStore[cookie.Value] = client
+    storageMutex.Unlock()
+  }
 
-var authMiddleware(h http.Handler) http.Handler {
+  http.SetCookie(w, cookie)
+
+  return cookie, client
 }
 
 var LoginHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+  cookie, client := ensureSessionCookie(w, r)
+
+  err := r.ParseForm()
+  if err != nil {
+    fmt.Fprint(w, err)
+    return
+  }
+
+  if subtle.ConstantTimeCompare([]byte(r.FormValue("password")),
+  []byte("abc123")) == 1 {
+    client.loggedIn = true
+    fmt.Fprintln(w, "Thank you for logging in.")
+    storageMutex.Lock()
+    sessionStore[cookie.Value] = client
+    storageMutex.Unlock()
+  } else {
+    fmt.Fprintln(w, "Wrong password.")
+  }
+})
+
+var NotImplemented = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+  w.Write([]byte("Not Implemented"))
 })
 
 var StatusHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
