@@ -1,1 +1,1 @@
-web: ./main -port=$PORT
+web: go-web-app-playground -port=$PORT

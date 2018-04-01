@@ -3,7 +3,6 @@ package main
 import (
   "os"
   "fmt"
-  "flag"
   "sync"
   "github.com/steakknife/rsapss/subtle"
   "net/http"
@@ -66,9 +65,12 @@ func main() {
   /* db = config.OpenDatabase() */
   r := mux.NewRouter()
   sessionStore = make(map[string]Client)
-  portPtr := flag.String("port", "3000", "The Go Server's HTTP Port")
-  flag.Parse() // execute command line parsing.
-  port := fmt.Sprintf(":%s", *portPtr)
+
+  envPort := os.Getenv("PORT")
+  if len(envPort) == 0 {
+    envPort = "3000"
+  }
+  port := fmt.Sprintf(":%s", envPort)
 
   r.Handle("/", http.FileServer(http.Dir("./views/")))
   r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))))
