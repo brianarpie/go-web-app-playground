@@ -70,6 +70,7 @@ func main() {
   r.Handle("/", http.FileServer(http.Dir("./views/")))
   // TODO: mess around with status files
   r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))))
+  r.PathPrefix("/dist/").Handler(http.StripPrefix("/dist/", http.FileServer(http.Dir("./dist/"))))
 
   r.Handle("/login", LoginHandler).Methods("POST")
   r.Handle("/status", StatusHandler).Methods("GET")

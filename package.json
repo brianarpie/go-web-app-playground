@@ -1,0 +1,33 @@
+{
+  "name": "go-web-app-playground",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:brianarpie/go-web-app-playground.git",
+  "author": "brianarpie <brian.arpie@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "rm dist/* || true && webpack --watch --watch-poll --config webpack.config.js"
+  },
+  "dependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.4",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "css-loader": "^0.28.11",
+    "es5-shim": "^4.5.10",
+    "extract-text-webpack-plugin": "next",
+    "imports-loader": "^0.8.0",
+    "less": "^3.0.1",
+    "less-loader": "^4.1.0",
+    "react": "^16.3.0",
+    "react-dom": "^16.3.0",
+    "style-loader": "^0.20.3",
+    "uglifyjs-webpack-plugin": "^1.2.4",
+    "webpack": "^4.4.1"
+  },
+  "devDependencies": {
+    "webpack-cli": "^2.0.13"
+  }
+}
