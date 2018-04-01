@@ -28,7 +28,7 @@ module.exports = {
 
 	mode: isDevMode ? 'development' : 'production',
 
-	devtool: isDevMode ? "source-map" : null,
+	devtool: isDevMode ? "source-map" : false,
 
 	entry: "./client/index.jsx",
 
