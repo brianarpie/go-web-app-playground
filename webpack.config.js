@@ -20,7 +20,10 @@ const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
  *
  */
 
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+// BUG: https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/731
+// const ExtractTextPlugin = require('extract-text-webpack-plugin');
+
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const isDevMode = process.env.NODE_ENV !== 'production';
 
@@ -49,28 +52,38 @@ module.exports = {
 			},
 			{
 				test: /\.(less|css)$/,
+				use: [
+					MiniCssExtractPlugin.loader,
+					'css-loader',
+					'less-loader'
+				]
 
-				use: ExtractTextPlugin.extract({
-					use: [
-						{
-							loader: 'css-loader',
-							options: {
-								sourceMap: true
-							}
-						},
-						{
-							loader: 'less-loader',
-							options: {
-								sourceMap: true
-							}
-						}
-					],
-					fallback: 'style-loader'
-				})
+				// use: ExtractTextPlugin.extract({
+				// 	use: [
+				// 		{
+				// 			loader: 'css-loader',
+				// 			options: {
+				// 				sourceMap: true
+				// 			}
+				// 		},
+				// 		{
+				// 			loader: 'less-loader',
+				// 			options: {
+				// 				sourceMap: true
+				// 			}
+				// 		}
+				// 	],
+				// 	fallback: 'style-loader'
+				// })
 			}
 		]
 	},
 
-	plugins: [new ExtractTextPlugin('style.css')]
+	plugins: [
+		new MiniCssExtractPlugin({
+			filename: "[name].css",
+			chunkFilename: "[id].css"
+		})
+	]
 };
 
