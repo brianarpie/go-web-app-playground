@@ -7,7 +7,8 @@
   "license": "MIT",
   "scripts": {
     "start": "rm dist/* || true && webpack --watch --watch-poll --config webpack.config.js",
-    "heroku-postbuild": "webpack -p --config ./webpack.config.js --progress"
+    "heroku-postbuild": "webpack -p --config ./webpack.config.js --progress",
+    "start:dev": "webpack-dev-server"
   },
   "dependencies": {
     "babel-cli": "^6.26.0",
@@ -31,6 +32,7 @@
     "webpack": "^4.4.1"
   },
   "devDependencies": {
-    "webpack-cli": "^2.0.13"
+    "webpack-cli": "^2.0.13",
+    "webpack-dev-server": "^3.1.1"
   }
 }

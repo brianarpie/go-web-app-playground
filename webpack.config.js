@@ -26,64 +26,91 @@ const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const isDevMode = process.env.NODE_ENV !== 'production';
+const devPort = process.env.CLIENT_PORT || 8080;
+const apiPort = process.env.PORT || 3000;
+const devPublicDomain = "http://localhost:" + devPort;
+const apiPublicDomain = "http://localhost:" + apiPort;
+const devPublicFullPath = devPublicDomain + "/dist/"
 
 module.exports = {
 
-	mode: isDevMode ? 'development' : 'production',
+    mode: isDevMode ? 'development' : 'production',
 
-	devtool: isDevMode ? "source-map" : false,
+    devtool: isDevMode ? "source-map" : false,
 
-	entry: "./client/index.jsx",
-
-	output: { filename: '[name].bundle.js',
-		path: path.resolve(__dirname, 'dist')
+    devServer: {
+	publicPath: devPublicFullPath,
+	port: devPort,
+	hot: true,
+	proxy: {
+	    '/': {
+		target: apiPublicDomain,
+		// bug: required to work for Mac OSX
+		pathRewrite: { '^/': '/' },
+	    }
 	},
+    },
 
-	module: {
-		rules: [
-			{
-				test: require.resolve('react'),
-				loader: 'imports-loader?shim=es5-shim/es5-shim&sham=es5-shim/es5-sham',
-			},
-			{
-				test: /\.jsx$/,
-				exclude: /node_modules/,
-				loader: 'babel-loader',
-			},
-			{
-				test: /\.(less|css)$/,
-				use: [
-					MiniCssExtractPlugin.loader,
-					'css-loader',
-					'less-loader'
-				]
+    entry: "./client/index.jsx",
 
-				// use: ExtractTextPlugin.extract({
-				// 	use: [
-				// 		{
-				// 			loader: 'css-loader',
-				// 			options: {
-				// 				sourceMap: true
-				// 			}
-				// 		},
-				// 		{
-				// 			loader: 'less-loader',
-				// 			options: {
-				// 				sourceMap: true
-				// 			}
-				// 		}
-				// 	],
-				// 	fallback: 'style-loader'
-				// })
-			}
+    output: { filename: '[name].bundle.js',
+	path: path.resolve(__dirname, 'dist')
+    },
+
+    resolve: {
+	extensions: ['.js', '.jsx'],
+	alias: {
+	    react: path.resolve('./node_modules/react'),
+	    'react-dom': path.resolve('./node_modules/react-dom'),
+	},
+    },
+
+    module: {
+	rules: [
+	    {
+		test: require.resolve('react'),
+		loader: 'imports-loader?shim=es5-shim/es5-shim&sham=es5-shim/es5-sham',
+	    },
+	    {
+		test: /\.(js|jsx)$/,
+		exclude: /node_modules/,
+		loader: 'babel-loader',
+	    },
+	    {
+		test: /\.(less|css)$/,
+		use: [
+		    MiniCssExtractPlugin.loader,
+		    'css-loader',
+		    'less-loader'
 		]
-	},
 
-	plugins: [
-		new MiniCssExtractPlugin({
-			filename: "[name].css",
-			chunkFilename: "[id].css"
-		})
+		// use: ExtractTextPlugin.extract({
+		// 	use: [
+		// 		{
+		// 			loader: 'css-loader',
+		// 			options: {
+		// 				sourceMap: true
+		// 			}
+		// 		},
+		// 		{
+		// 			loader: 'less-loader',
+		// 			options: {
+		// 				sourceMap: true
+		// 			}
+		// 		}
+		// 	],
+		// 	fallback: 'style-loader'
+		// })
+	    }
 	]
+    },
+
+    plugins: [
+	new webpack.HotModuleReplacementPlugin(),
+	new MiniCssExtractPlugin({
+	    filename: "[name].css",
+	    chunkFilename: "[id].css"
+	})
+    ]
 };
 
