@@ -6,7 +6,8 @@
   "author": "brianarpie <brian.arpie@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "start": "rm dist/* || true && webpack --watch --watch-poll --config webpack.config.js"
+    "start": "rm dist/* || true && webpack --watch --watch-poll --config webpack.config.js",
+    "heroku-postbuild": "webpack -p --config ./webpack.config.js --progress"
   },
   "dependencies": {
     "babel-cli": "^6.26.0",
