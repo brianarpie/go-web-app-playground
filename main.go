@@ -9,7 +9,7 @@ import (
   "net/http"
   "database/sql"
   "encoding/json"
-  "github.com/brianarpie/go-web-app-playground/config"
+  /* "github.com/brianarpie/go-web-app-playground/config" */
   "github.com/brianarpie/go-web-app-playground/models"
 
   "github.com/gorilla/mux"
