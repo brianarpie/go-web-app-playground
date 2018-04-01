@@ -63,7 +63,7 @@ func authentication(h http.Handler) authMiddleware {
 }
 
 func main() {
-  db = config.OpenDatabase()
+  /* db = config.OpenDatabase() */
   r := mux.NewRouter()
   sessionStore = make(map[string]Client)
   portPtr := flag.String("port", "3000", "The Go Server's HTTP Port")
@@ -81,7 +81,7 @@ func main() {
 
   http.ListenAndServe(port, handlers.LoggingHandler(os.Stdout, r))
 
-  defer db.Close()
+  /* defer db.Close() */
 }
 
 func ensureSessionCookie(w http.ResponseWriter, r *http.Request) (*http.Cookie, Client) {
